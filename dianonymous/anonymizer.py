@@ -1,4 +1,4 @@
-import dicom
+import pydicom as dicom
 import uuid
 import hashlib
 
@@ -17,7 +17,7 @@ def anonymous_study_id(ds, elem):
     return "1"
 
 def anonymous_uid(ds, elem):
-    return uuid.UUID(hashlib.sha512(str(elem.tag)).hexdigest()[:32]).get_hex()
+    return uuid.UUID(hashlib.sha512(str(elem.tag).encode('utf-8')).hexdigest()[:32]).hex
 
 def anonymous_string(ds, elem):
     return "anonymous"

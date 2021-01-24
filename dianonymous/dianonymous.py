@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import argparse
-import dicom
+import pydicom
 import hashlib
 import os
 import sys
@@ -36,11 +36,13 @@ def anonymize(inputs, output="anonymized", anon_id=None, anon_name=None, recurse
 
     for inp in get_input_paths(inputs, recurse):
         try:
-            dcm = dicom.read_file(inp, force=True)
-            patient_id = dcm[PATIENT_ID].value or "not provided" # also serves as check for valid DICOM file
-            patient_name = dcm.PatientsName or "not provided"
-            anon_id = anon_id or hashlib.sha512(patient_id).hexdigest()[:10]
-            anon_name = anon_name or hashlib.sha512(patient_name).hexdigest()[:10]
+            dcm = pydicom.dcmread(inp, force=True)
+            patient_id = dcm.PatientID or "not provided" # also serves as check for valid DICOM file
+            patient_name = dcm.PatientName or "not provided"
+            patient_id = str(patient_id)
+            patient_name = str(patient_name)
+            anon_id = anon_id or hashlib.sha512(patient_id.encode('utf-8')).hexdigest()[:10]
+            anon_name = anon_name or hashlib.sha512(patient_name.encode('utf-8')).hexdigest()[:10]
 
             anonymizer.anonymize(dcm, patient_id=anon_id, patient_name=anon_name)
 
@@ -55,7 +57,7 @@ def anonymize(inputs, output="anonymized", anon_id=None, anon_name=None, recurse
             dcm.save_as(out_path)
             if log:
                 log.write("Anonymized & wrote %s to %s\n" % (inp, out_path))
-        except (MemoryError, KeyError):
+        except (MemoryError, KeyError, AttributeError):
             pass
 
 
@@ -84,7 +86,7 @@ def get_input_paths(inputs, recurse):
     a generator for all input files requested
     """
 
-    if isinstance(inputs, basestring):
+    if isinstance(inputs, str):
         inputs = [inputs]
 
     for inp in inputs:

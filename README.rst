@@ -2,6 +2,10 @@
 Dianonymous
 ===============================
 
+This repository fixs bugs in original repo (`here <https://github.com/randlet/dianonymous>`_), 
+updates with Python 3.x grammar and replaces ``dicom`` package with ``pydicom``,
+a newer package.  
+
 A Python package for anonymizing DICOM files.  ***DISCLAIMER*** the
 anonymization provided this package is not guaranteed to be complete! In
 particular no effort is made to remove *burned-in* information from image
